@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teacher Sign Up – Silent Classroom</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4CAF84',
+            secondary: '#E9F7F1',
+            accent: '#CFEDE2',
+            card: '#F4FBF8',
+            border: '#D3EDE2',
+            foreground: '#1F4037',
+            muted: '#6B9080'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-secondary min-h-screen flex items-center justify-center font-sans text-foreground">
+
+  <!-- Card -->
+  <div class="bg-card border border-border rounded-2xl shadow-lg w-full max-w-md p-8">
+
+    <h1 class="text-2xl font-bold text-center mb-2">Teacher Sign Up</h1>
+    <p class="text-sm text-muted text-center mb-6">
+      Create your teacher account
+    </p>
+
+    <form id="signupForm" class="space-y-4">
+
+      <!-- Name -->
+      <div>
+        <label class="text-sm font-medium">Full Name</label>
+        <input id="name" type="text" required
+          class="w-full mt-1 p-2.5 rounded-lg border border-border"
+          placeholder="Teacher name">
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="text-sm font-medium">Email</label>
+        <input id="email" type="email" required
+          class="w-full mt-1 p-2.5 rounded-lg border border-border"
+          placeholder="teacher@email.com">
+      </div>
+
+      <!-- Password -->
+      <div class="relative">
+        <label class="text-sm font-medium">Password</label>
+        <input id="password" type="password" required
+          class="w-full mt-1 p-2.5 pr-12 rounded-lg border border-border"
+          placeholder="Eg: Abcd12@">
+        <button type="button" id="togglePwd"
+          class="absolute top-9 right-3 text-muted">👁</button>
+      </div>
+
+      <p class="text-xs text-muted">
+        Password must contain <b>4+ chars, 2 letters, 1 number, 1 special</b>
+      </p>
+
+      <!-- Subject -->
+      <div>
+        <label class="text-sm font-medium">Subject</label>
+        <select id="subject" required
+          class="w-full mt-1 p-2.5 rounded-lg border border-border">
+          <option value="">Select subject</option>
+          <option>Maths</option>
+          <option>Physics</option>
+          <option>Chemistry</option>
+        </select>
+      </div>
+
+      <!-- Classes -->
+      <div>
+        <label class="text-sm font-medium">Classes (Ctrl + Click)</label>
+        <select id="classes" multiple required
+          class="w-full mt-1 p-2.5 rounded-lg border border-border">
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          
+        </select>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold">
+        Sign Up
+      </button>
+
+    </form>
+
+    <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden text-center"></p>
+
+    <p class="text-sm text-center mt-4">
+      Already have an account?
+      <a href="teacher-login.html" class="text-primary font-medium">Login</a>
+    </p>
+  </div>
+
+<!-- 🔥 FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAh2PKOY1PHmqilOlIyq6V6M6XK0d3oBlY",
+    authDomain: "silent-classroom-33507.firebaseapp.com",
+    projectId: "silent-classroom-33507",
+    storageBucket: "silent-classroom-33507.appspot.com",
+    messagingSenderId: "518916198170",
+    appId: "1:518916198170:web:62412f70094240cb9b26a3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("signupForm");
+  const errorMsg = document.getElementById("errorMsg");
+
+  // 👁 Toggle password
+  document.getElementById("togglePwd").onclick = () => {
+    const p = document.getElementById("password");
+    p.type = p.type === "password" ? "text" : "password";
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const subject = document.getElementById("subject").value;
+
+    const classes = Array.from(
+      document.getElementById("classes").selectedOptions
+    ).map(o => o.value);
+
+    // ✅ Password validation
+    const pwdRegex = /^(?=(?:.*[A-Za-z]){2,})(?=.*\d)(?=.*[@$!%*?&]).{4,}$/;
+    if (!pwdRegex.test(password)) {
+      errorMsg.textContent = "Invalid password format";
+      errorMsg.classList.remove("hidden");
+      return;
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name,
+        email,
+        role: "teacher",
+        subject,
+        classes,
+        createdAt: new Date()
+      });
+
+      // ✅ FINAL REDIRECT (THIS WAS THE ISSUE)
+      window.location.href = "teacher-dashboard.html";
+
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.classList.remove("hidden");
+    }
+  });
+</script>
+
+</body>
+</html>

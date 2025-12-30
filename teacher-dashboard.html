@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Silent Classroom – Teacher Dashboard</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4CAF84',
+            secondary: '#E9F7F1',
+            accent: '#CFEDE2',
+            card: '#F4FBF8',
+            border: '#D3EDE2',
+            foreground: '#1F4037',
+            muted: '#6B9080'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-secondary text-foreground font-sans">
+
+<!-- Header -->
+<header class="bg-card border-b border-border p-5 flex justify-between items-center">
+  <div>
+    <h1 class="text-xl font-bold">Teacher Dashboard</h1>
+    <p id="teacherInfo" class="text-sm text-muted"></p>
+  </div>
+  <button id="logoutBtn" class="text-sm text-primary font-medium">Logout</button>
+</header>
+
+<!-- Main -->
+<main class="p-6 space-y-6">
+
+  <!-- Stats -->
+  <section class="grid md:grid-cols-3 gap-4">
+    <div class="bg-card p-5 rounded-xl border border-border">
+      <p class="text-sm text-muted">Subject</p>
+      <p id="subjectBox" class="text-lg font-semibold">–</p>
+    </div>
+
+    <div class="bg-card p-5 rounded-xl border border-border">
+      <p class="text-sm text-muted">Class</p>
+      <p id="classBox" class="text-lg font-semibold">–</p>
+    </div>
+
+    <div class="bg-card p-5 rounded-xl border border-border">
+      <p class="text-sm text-muted">Total Feedback</p>
+      <p id="feedbackCount" class="text-lg font-semibold">0</p>
+    </div>
+  </section>
+
+  <!-- Feedback -->
+  <section>
+    <h2 class="text-lg font-semibold mb-3">Anonymous Student Feedback</h2>
+    <div id="feedbackList" class="space-y-3"></div>
+  </section>
+
+</main>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAh2PKOY1PHmqilOlIyq6V6M6XK0d3oBlY",
+    authDomain: "silent-classroom-33507.firebaseapp.com",
+    projectId: "silent-classroom-33507",
+    storageBucket: "silent-classroom-33507.appspot.com",
+    messagingSenderId: "518916198170",
+    appId: "1:518916198170:web:62412f70094240cb9b26a3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const feedbackList = document.getElementById("feedbackList");
+  const feedbackCount = document.getElementById("feedbackCount");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "teacher-login.html";
+      return;
+    }
+
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+
+    if (!userSnap.exists() || userSnap.data().role !== "teacher") {
+      alert("Access denied");
+      await signOut(auth);
+      window.location.href = "teacher-login.html";
+      return;
+    }
+
+    const teacher = userSnap.data();
+    document.getElementById("teacherInfo").textContent =
+      `${teacher.name || "Teacher"} • ${teacher.subject} • Classes ${teacher.classes.join(", ")}`;
+
+    document.getElementById("subjectBox").textContent = teacher.subject;
+    document.getElementById("classBox").textContent = teacher.classes.join(", ");
+
+    loadFeedbacks(teacher.subject, teacher.classes);
+  });
+
+  async function loadFeedbacks(subject, classes) {
+  feedbackList.innerHTML = "";
+
+  const q = query(
+    collection(db, "feedbacks"),   // ✅ fixed
+    where("subject", "==", subject),
+    where("class", "in", classes)
+  );
+
+  const snapshot = await getDocs(q);
+  feedbackCount.textContent = snapshot.size;
+
+  snapshot.forEach(docSnap => {
+    const f = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "bg-card p-4 rounded-xl border border-border";
+
+    div.innerHTML = `
+      <p class="font-medium mb-1">${f.feedback}</p>
+      <p class="text-xs text-muted">
+        Class: ${f.class} • Rating: ${f.rating || "N/A"}
+      </p>
+    `;
+
+    feedbackList.appendChild(div);
+  });
+
+  if (snapshot.empty) {
+    feedbackList.innerHTML =
+      `<p class="text-sm text-muted">No feedback yet.</p>`;
+  }
+}
+
+  document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    window.location.href = "teacher-login.html";
+  };
+</script>
+
+</body>
+</html>

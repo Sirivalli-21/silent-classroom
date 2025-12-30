@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard | Silent Classroom</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  body { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+
+<body class="bg-[#eaf4f2] min-h-screen overflow-x-hidden">
+
+<!-- ========== TOP BAR ========== -->
+<header class="fixed top-0 left-0 right-0 h-14 bg-white border-b flex items-center px-4 z-40">
+  <!-- Hamburger -->
+  <button id="hamburger" class="space-y-1">
+    <span class="block w-6 h-0.5 bg-gray-800"></span>
+    <span class="block w-6 h-0.5 bg-gray-800"></span>
+    <span class="block w-6 h-0.5 bg-gray-800"></span>
+  </button>
+
+  <h1 class="ml-4 font-semibold text-gray-800">Silent Classroom</h1>
+</header>
+
+<!-- ========== OVERLAY ========== -->
+<div id="overlay" class="fixed inset-0 bg-black/40 hidden z-30"></div>
+
+<!-- ========== SIDEBAR ========== -->
+<aside id="sidebar"
+  class="fixed top-0 left-0 h-full w-64 bg-white z-40
+         transform -translate-x-full transition-transform duration-300 ease-in-out">
+
+  <!-- spacer -->
+  <div class="h-14"></div>
+
+  <!-- Logo -->
+  <div class="px-6 py-4 border-b">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-orange-400 flex items-center justify-center text-white font-bold">
+        ✨
+      </div>
+      <div>
+        <p class="font-bold">Silent Classroom</p>
+        <p class="text-xs text-gray-500">Anonymous Feedback</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <nav class="px-4 py-6 space-y-1">
+    <p class="text-xs font-semibold text-gray-400 px-3 mb-2">MENU</p>
+
+    <a href="student-dashboard.html"
+       class="block px-4 py-2 rounded-lg bg-teal-100 text-teal-700 font-medium">
+      Dashboard
+    </a>
+
+    <a href="index.html#about"
+       class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+      About Silent Classroom
+    </a>
+
+    <a href="index.html#how-it-works"
+       class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+      How It Works
+    </a>
+
+    <a href="index.html#contact"
+       class="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+      Contact Support
+    </a>
+  </nav>
+
+  <!-- Logout -->
+  <div class="absolute bottom-4 left-0 w-full px-6">
+    <button id="logoutBtn" class="text-red-500 text-sm">
+  Logout
+</button>
+  </div>
+</aside>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main class="pt-20 px-4 flex justify-center">
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8">
+
+    <h2 class="text-2xl font-bold mb-1">Student Dashboard</h2>
+    <p class="text-sm text-gray-500 mb-6">
+      🔒 Your feedback is anonymous and helps teachers improve
+    </p>
+
+    <!-- Selects -->
+      <div class="grid md:grid-cols-1 gap-4 mb-4">
+      
+      <select class="rounded-xl border bg-gray-50 px-4 py-3" required>
+        <option value="">Choose subject...</option>
+        <option>Maths</option>
+        <option>Physics</option>
+        <option>Chemistry</option>
+      </select>
+    </div>
+
+    <!-- Feedback -->
+    <textarea
+      class="w-full rounded-xl border bg-gray-50 px-4 py-3 h-32 mb-6"
+      placeholder="Share your thoughts about the class, teaching style, or suggestions for improvement..."
+      required
+    ></textarea>
+
+    <!-- Rating -->
+    <h3 class="font-semibold mb-3">Rate Your Experience</h3>
+
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+      <div class="rating cursor-pointer border rounded-xl p-4 text-center">😞<p class="text-sm">Poor</p></div>
+      <div class="rating cursor-pointer border rounded-xl p-4 text-center">😐<p class="text-sm">Below Avg</p></div>
+      <div class="rating cursor-pointer border rounded-xl p-4 text-center">🙂<p class="text-sm">Average</p></div>
+      <div class="rating cursor-pointer border rounded-xl p-4 text-center">😊<p class="text-sm">Good</p></div>
+      <div class="rating cursor-pointer border rounded-xl p-4 text-center">😁<p class="text-sm">Excellent</p></div>
+    </div>
+
+    <!-- Submit -->
+    <button id="submitBtn"
+      class="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded-xl font-semibold">
+      ➤ Submit Feedback
+    </button>
+
+    <p class="text-xs text-center text-gray-500 mt-3">
+      100% Anonymous · Your identity is never revealed
+    </p>
+
+  </div>
+</main>
+
+<!-- ========== JS ========== -->
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+
+  hamburger.addEventListener("click", () => {
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  });
+
+  
+</script>
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAh2PKOY1PHmqilOlIyq6V6M6XK0d3oBlY",
+    authDomain: "silent-classroom-33507.firebaseapp.com",
+    projectId: "silent-classroom-33507",
+    storageBucket: "silent-classroom-33507.firebasestorage.app",
+    messagingSenderId: "518916198170",
+    appId: "1:518916198170:web:62412f70094240cb9b26a3"
+  };
+
+  // Initialize Firebase ONCE
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let selectedRating = "";
+  let studentClass="";
+
+  // 🔐 Protect dashboard
+  import { doc, getDoc } from 
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "student-login.html";
+    return;
+  }
+
+  currentUser = user;
+
+  // 🔥 Get student data from Firestore
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+
+  if (!userSnap.exists()) {
+    alert("Student data not found");
+    return;
+  }
+
+  studentClass = userSnap.data().class; // ✅ STORED CLASS
+});
+
+  // ⭐ Rating selection
+  document.querySelectorAll(".rating").forEach(el => {
+    el.addEventListener("click", () => {
+      document.querySelectorAll(".rating").forEach(r =>
+        r.classList.remove("bg-teal-100", "border-teal-500")
+      );
+      el.classList.add("bg-teal-100", "border-teal-500");
+      selectedRating = el.innerText.trim();
+    });
+  });
+
+  // 📤 Submit feedback
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+  const subjectValue = document.querySelector("select").value;
+  const feedbackText = document.querySelector("textarea").value;
+
+  if (!studentClass || !subjectValue || !feedbackText || !selectedRating) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "feedbacks"), {
+      studentId: currentUser.uid,
+      class: studentClass,     // ✅ taken from Firebase users collection
+      subject: subjectValue,
+      feedback: feedbackText,
+      rating: selectedRating,
+      createdAt: serverTimestamp()
+    });
+
+    alert("✅ Feedback submitted successfully!");
+    document.querySelector("textarea").value = "";
+    selectedRating = "";
+
+  } catch (err) {
+    alert("❌ Error saving feedback");
+    console.error(err);
+  }
+});
+// 🚪 LOGOUT HANDLER
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "student-login.html"; // redirect after logout
+  } catch (error) {
+    alert("Error logging out");
+    console.error(error);
+  }
+});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Login</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pastel: {
+              sage: '#A8C5A8',
+              mint: '#C5E1C5',
+              cream: '#F5F5DC',
+              leaf: '#8FBC8F'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Quicksand', sans-serif; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-pastel-mint via-pastel-cream to-pastel-sage flex items-center justify-center p-4 relative overflow-hidden">
+
+  <!-- Floating Decorations -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-20 left-10 w-20 h-20 rounded-full bg-pastel-mint opacity-60 animate-float"></div>
+    <div class="absolute top-40 right-20 w-16 h-16 rounded-full bg-pastel-sage opacity-50 animate-float" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-32 left-1/4 w-12 h-12 rounded-full bg-pastel-leaf opacity-40 animate-float" style="animation-delay: 2s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-24 h-24 rounded-full bg-pastel-cream opacity-50 animate-float" style="animation-delay: 0.5s;"></div>
+    <div class="absolute bottom-20 right-10 w-14 h-14 rounded-full bg-pastel-mint opacity-45 animate-float" style="animation-delay: 1.5s;"></div>
+  </div>
+
+  <!-- Login Card -->
+  <div class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 w-full max-w-md relative z-10 animate-slide-up border border-pastel-sage/30">
+
+    <h2 class="text-2xl font-bold text-center mb-2 text-gray-800">Teacher Login</h2>
+    <p class="text-gray-500 text-center mb-6">Welcome back, educator!</p>
+
+    <form onsubmit="loginTeacher(event)" class="space-y-4">
+
+      <!-- Email -->
+      <div class="relative">
+        <input type="email" name="email" id="email" placeholder="Enter your email" required
+          class="w-full pl-12 pr-4 py-3 border-2 border-pastel-sage/50 rounded-xl bg-white focus:outline-none">
+      </div>
+
+      <!-- Password (ONLY MODIFIED PART) -->
+      <div class="relative">
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+          class="w-full pl-12 pr-12 py-3 border-2 border-pastel-sage/50 rounded-xl bg-white focus:outline-none">
+          
+        <!-- Eye icon -->
+        <button
+          type="button"
+          onclick="togglePassword()"
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2">
+            <path d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12s-4 7.5-10.5 7.5S1.5 12 1.5 12z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="text-right">
+  <button
+    type="button"
+    id="forgotPasswordBtn"
+    class="text-sm text-emerald-600 hover:underline">
+    Forgot password?
+  </button>
+</div>
+
+      <button type="submit"
+        class="w-full bg-gradient-to-r from-pastel-sage to-pastel-leaf text-white py-3 rounded-xl font-semibold">
+        Login as Teacher
+      </button>
+       <p id="pwdError" class="text-sm text-red-500 mt-3 text-center hidden"></p>
+    </form>
+    <!-- Signup redirect -->
+<div class="mt-6 text-center">
+  <p class="text-sm text-gray-500">
+    Don’t have an account?
+    <a href="teacher-signup.html"
+       class="text-pastel-leaf font-semibold hover:underline">
+      Create an account
+    </a>
+  </p>
+</div>
+  </div>
+
+  <!-- ONLY ADDED SCRIPT -->
+  <script>
+    function togglePassword() {
+      const password = document.getElementById("password");
+      password.type = password.type === "password" ? "text" : "password";
+    }
+  </script>
+
+  <!-- Firebase (UNCHANGED) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAh2PKOY1PHmqilOlIyq6V6M6XK0d3oBlY",
+      authDomain: "silent-classroom-33507.firebaseapp.com",
+      projectId: "silent-classroom-33507",
+      storageBucket: "silent-classroom-33507.firebasestorage.app",
+      messagingSenderId: "518916198170",
+      appId: "1:518916198170:web:62412f70094240cb9b26a3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    // 🔁 Forgot Password
+document.getElementById("forgotPasswordBtn").addEventListener("click", () => {
+  const email = document.getElementById("email").value.trim();
+
+  if (!email) {
+    alert("Please enter your email first.");
+    return;
+  }
+
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      alert("📩 Password reset email sent. Check your inbox.");
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
+    });
+});
+    const db = getFirestore(app);
+    window.loginTeacher = async function (e) {
+  e.preventDefault();
+
+  const email = document.querySelector('input[name="email"]').value.trim();
+  const password = document.querySelector('input[name="password"]').value;
+
+  // 🔐 Password validation
+  const passwordRegex = /^(?=(?:.*[A-Za-z]){2,})(?=.*[@$!%*?&]).{4,}$/;
+
+  if (!passwordRegex.test(password)) {
+    alert(
+      "Password must have:\n• Minimum 4 characters\n• At least 2 letters\n• At least 1 special character"
+    );
+    return; // ❌ STOP HERE
+  }
+
+  try {
+    // 🔑 Firebase Auth login
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // 🔍 Check Firestore role
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (!userDoc.exists()) {
+      alert("User data not found in database.");
+      return;
+    }
+
+    if (userDoc.data().role !== "teacher") {
+      alert("Access denied. You are not a teacher.");
+      return;
+    }
+
+    // ✅ SUCCESS → redirect
+    window.location.href = "teacher-dashboard.html";
+
+  } catch (error) {
+    alert("Login failed: " + error.message);
+  }
+};
+    
+  </script>
+
+</body>
+</html>
